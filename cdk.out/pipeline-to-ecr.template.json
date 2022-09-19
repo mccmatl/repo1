@@ -1,0 +1,1882 @@
+{
+ "Resources": {
+  "fargatedevworkshopapprepo09C62F80": {
+   "Type": "AWS::CodeCommit::Repository",
+   "Properties": {
+    "RepositoryName": "fargate-dev-workshop-app-repo"
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/fargate-dev-workshop-apprepo/Resource"
+   }
+  },
+  "fargatedevworkshopapprepopipelinetoecrMyPipeline18360B7AEventRuleAC4B2024": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "EventPattern": {
+     "source": [
+      "aws.codecommit"
+     ],
+     "resources": [
+      {
+       "Fn::GetAtt": [
+        "fargatedevworkshopapprepo09C62F80",
+        "Arn"
+       ]
+      }
+     ],
+     "detail-type": [
+      "CodeCommit Repository State Change"
+     ],
+     "detail": {
+      "event": [
+       "referenceCreated",
+       "referenceUpdated"
+      ],
+      "referenceName": [
+       "master"
+      ]
+     }
+    },
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::Join": [
+        "",
+        [
+         "arn:",
+         {
+          "Ref": "AWS::Partition"
+         },
+         ":codepipeline:us-east-1:781873529845:",
+         {
+          "Ref": "MyPipelineAED38ECF"
+         }
+        ]
+       ]
+      },
+      "Id": "Target0",
+      "RoleArn": {
+       "Fn::GetAtt": [
+        "MyPipelineEventsRoleFAB99F32",
+        "Arn"
+       ]
+      }
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/fargate-dev-workshop-apprepo/pipelinetoecrMyPipeline18360B7AEventRule/Resource"
+   }
+  },
+  "fargatedevworkshopDC8556A7": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "RepositoryName": "fargate-dev-workshop"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/fargate-dev-workshop/Resource"
+   }
+  },
+  "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3": {
+   "Type": "AWS::KMS::Key",
+   "Properties": {
+    "KeyPolicy": {
+     "Statement": [
+      {
+       "Action": [
+        "kms:Create*",
+        "kms:Describe*",
+        "kms:Enable*",
+        "kms:List*",
+        "kms:Put*",
+        "kms:Update*",
+        "kms:Revoke*",
+        "kms:Disable*",
+        "kms:Get*",
+        "kms:Delete*",
+        "kms:ScheduleKeyDeletion",
+        "kms:CancelKeyDeletion",
+        "kms:GenerateDataKey",
+        "kms:TagResource",
+        "kms:UntagResource"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":iam::781873529845:root"
+          ]
+         ]
+        }
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "MyPipelineRoleC0D47CA4",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "MyPipelineSourceCodeCommitCodePipelineActionRole3B3AD87E",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "DockerLintRoleBA4A0360",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "DockerLintRoleBA4A0360",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "DockerSecretScanRole4D0115A2",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "DockerSecretScanRole4D0115A2",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "DockerBuildRole2BAC6ED2",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "DockerBuildRole2BAC6ED2",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/ArtifactsBucketEncryptionKey/Resource"
+   }
+  },
+  "MyPipelineArtifactsBucketEncryptionKeyAlias9D4F8C59": {
+   "Type": "AWS::KMS::Alias",
+   "Properties": {
+    "AliasName": "alias/codepipeline-pipelinetoecrmypipeline18360b7a",
+    "TargetKeyId": {
+     "Fn::GetAtt": [
+      "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+      "Arn"
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/ArtifactsBucketEncryptionKeyAlias/Resource"
+   }
+  },
+  "MyPipelineArtifactsBucket727923DD": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "KMSMasterKeyID": {
+         "Fn::GetAtt": [
+          "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+          "Arn"
+         ]
+        },
+        "SSEAlgorithm": "aws:kms"
+       }
+      }
+     ]
+    },
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/ArtifactsBucket/Resource"
+   }
+  },
+  "MyPipelineArtifactsBucketPolicyDFDA675B": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "MyPipelineArtifactsBucket727923DD"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "s3:*",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "MyPipelineArtifactsBucket727923DD",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "MyPipelineArtifactsBucket727923DD",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/ArtifactsBucket/Policy/Resource"
+   }
+  },
+  "MyPipelineRoleC0D47CA4": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codepipeline.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/Role/Resource"
+   }
+  },
+  "MyPipelineRoleDefaultPolicy34F09EFA": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject*",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "MyPipelineArtifactsBucket727923DD",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "MyPipelineArtifactsBucket727923DD",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "MyPipelineSourceCodeCommitCodePipelineActionRole3B3AD87E",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "MyPipelineLintDockerLintImagesCodePipelineActionRole859AFE61",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "MyPipelineSecretScanDockerSecretScanImagesCodePipelineActionRoleA1BC6871",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "MyPipelineBuildDockerBuildImagesCodePipelineActionRoleE3845FE2",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "MyPipelineRoleDefaultPolicy34F09EFA",
+    "Roles": [
+     {
+      "Ref": "MyPipelineRoleC0D47CA4"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/Role/DefaultPolicy/Resource"
+   }
+  },
+  "MyPipelineAED38ECF": {
+   "Type": "AWS::CodePipeline::Pipeline",
+   "Properties": {
+    "RoleArn": {
+     "Fn::GetAtt": [
+      "MyPipelineRoleC0D47CA4",
+      "Arn"
+     ]
+    },
+    "Stages": [
+     {
+      "Actions": [
+       {
+        "ActionTypeId": {
+         "Category": "Source",
+         "Owner": "AWS",
+         "Provider": "CodeCommit",
+         "Version": "1"
+        },
+        "Configuration": {
+         "RepositoryName": {
+          "Fn::GetAtt": [
+           "fargatedevworkshopapprepo09C62F80",
+           "Name"
+          ]
+         },
+         "BranchName": "master",
+         "PollForSourceChanges": false
+        },
+        "Name": "CodeCommit",
+        "OutputArtifacts": [
+         {
+          "Name": "Artifact_Source_CodeCommit"
+         }
+        ],
+        "RoleArn": {
+         "Fn::GetAtt": [
+          "MyPipelineSourceCodeCommitCodePipelineActionRole3B3AD87E",
+          "Arn"
+         ]
+        },
+        "RunOrder": 1
+       }
+      ],
+      "Name": "Source"
+     },
+     {
+      "Actions": [
+       {
+        "ActionTypeId": {
+         "Category": "Build",
+         "Owner": "AWS",
+         "Provider": "CodeBuild",
+         "Version": "1"
+        },
+        "Configuration": {
+         "ProjectName": {
+          "Ref": "DockerLintAE1899AD"
+         }
+        },
+        "InputArtifacts": [
+         {
+          "Name": "Artifact_Source_CodeCommit"
+         }
+        ],
+        "Name": "DockerLintImages",
+        "RoleArn": {
+         "Fn::GetAtt": [
+          "MyPipelineLintDockerLintImagesCodePipelineActionRole859AFE61",
+          "Arn"
+         ]
+        },
+        "RunOrder": 1
+       }
+      ],
+      "Name": "Lint"
+     },
+     {
+      "Actions": [
+       {
+        "ActionTypeId": {
+         "Category": "Build",
+         "Owner": "AWS",
+         "Provider": "CodeBuild",
+         "Version": "1"
+        },
+        "Configuration": {
+         "ProjectName": {
+          "Ref": "DockerSecretScan0936513F"
+         }
+        },
+        "InputArtifacts": [
+         {
+          "Name": "Artifact_Source_CodeCommit"
+         }
+        ],
+        "Name": "DockerSecretScanImages",
+        "RoleArn": {
+         "Fn::GetAtt": [
+          "MyPipelineSecretScanDockerSecretScanImagesCodePipelineActionRoleA1BC6871",
+          "Arn"
+         ]
+        },
+        "RunOrder": 1
+       }
+      ],
+      "Name": "SecretScan"
+     },
+     {
+      "Actions": [
+       {
+        "ActionTypeId": {
+         "Category": "Build",
+         "Owner": "AWS",
+         "Provider": "CodeBuild",
+         "Version": "1"
+        },
+        "Configuration": {
+         "ProjectName": {
+          "Ref": "DockerBuildCFACF599"
+         }
+        },
+        "InputArtifacts": [
+         {
+          "Name": "Artifact_Source_CodeCommit"
+         }
+        ],
+        "Name": "DockerBuildImages",
+        "RoleArn": {
+         "Fn::GetAtt": [
+          "MyPipelineBuildDockerBuildImagesCodePipelineActionRoleE3845FE2",
+          "Arn"
+         ]
+        },
+        "RunOrder": 1
+       }
+      ],
+      "Name": "Build"
+     }
+    ],
+    "ArtifactStore": {
+     "EncryptionKey": {
+      "Id": {
+       "Fn::GetAtt": [
+        "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+        "Arn"
+       ]
+      },
+      "Type": "KMS"
+     },
+     "Location": {
+      "Ref": "MyPipelineArtifactsBucket727923DD"
+     },
+     "Type": "S3"
+    },
+    "Name": "fargate-dev-workshop-commit-to-ecr"
+   },
+   "DependsOn": [
+    "MyPipelineRoleDefaultPolicy34F09EFA",
+    "MyPipelineRoleC0D47CA4"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/Resource"
+   }
+  },
+  "MyPipelineSourceCodeCommitCodePipelineActionRole3B3AD87E": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":iam::781873529845:root"
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/Source/CodeCommit/CodePipelineActionRole/Resource"
+   }
+  },
+  "MyPipelineSourceCodeCommitCodePipelineActionRoleDefaultPolicyEC1DD3CC": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject*",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "MyPipelineArtifactsBucket727923DD",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "MyPipelineArtifactsBucket727923DD",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "codecommit:GetBranch",
+        "codecommit:GetCommit",
+        "codecommit:UploadArchive",
+        "codecommit:GetUploadArchiveStatus",
+        "codecommit:CancelUploadArchive"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "fargatedevworkshopapprepo09C62F80",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "MyPipelineSourceCodeCommitCodePipelineActionRoleDefaultPolicyEC1DD3CC",
+    "Roles": [
+     {
+      "Ref": "MyPipelineSourceCodeCommitCodePipelineActionRole3B3AD87E"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/Source/CodeCommit/CodePipelineActionRole/DefaultPolicy/Resource"
+   }
+  },
+  "MyPipelineEventsRoleFAB99F32": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "events.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/EventsRole/Resource"
+   }
+  },
+  "MyPipelineEventsRoleDefaultPolicyF045F033": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "codepipeline:StartPipelineExecution",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codepipeline:us-east-1:781873529845:",
+          {
+           "Ref": "MyPipelineAED38ECF"
+          }
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "MyPipelineEventsRoleDefaultPolicyF045F033",
+    "Roles": [
+     {
+      "Ref": "MyPipelineEventsRoleFAB99F32"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/EventsRole/DefaultPolicy/Resource"
+   }
+  },
+  "MyPipelineLintDockerLintImagesCodePipelineActionRole859AFE61": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":iam::781873529845:root"
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/Lint/DockerLintImages/CodePipelineActionRole/Resource"
+   }
+  },
+  "MyPipelineLintDockerLintImagesCodePipelineActionRoleDefaultPolicyAE695748": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "codebuild:BatchGetBuilds",
+        "codebuild:StartBuild",
+        "codebuild:StopBuild"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "DockerLintAE1899AD",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "MyPipelineLintDockerLintImagesCodePipelineActionRoleDefaultPolicyAE695748",
+    "Roles": [
+     {
+      "Ref": "MyPipelineLintDockerLintImagesCodePipelineActionRole859AFE61"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/Lint/DockerLintImages/CodePipelineActionRole/DefaultPolicy/Resource"
+   }
+  },
+  "MyPipelineSecretScanDockerSecretScanImagesCodePipelineActionRoleA1BC6871": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":iam::781873529845:root"
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/SecretScan/DockerSecretScanImages/CodePipelineActionRole/Resource"
+   }
+  },
+  "MyPipelineSecretScanDockerSecretScanImagesCodePipelineActionRoleDefaultPolicyB4727F6E": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "codebuild:BatchGetBuilds",
+        "codebuild:StartBuild",
+        "codebuild:StopBuild"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "DockerSecretScan0936513F",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "MyPipelineSecretScanDockerSecretScanImagesCodePipelineActionRoleDefaultPolicyB4727F6E",
+    "Roles": [
+     {
+      "Ref": "MyPipelineSecretScanDockerSecretScanImagesCodePipelineActionRoleA1BC6871"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/SecretScan/DockerSecretScanImages/CodePipelineActionRole/DefaultPolicy/Resource"
+   }
+  },
+  "MyPipelineBuildDockerBuildImagesCodePipelineActionRoleE3845FE2": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":iam::781873529845:root"
+          ]
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/Build/DockerBuildImages/CodePipelineActionRole/Resource"
+   }
+  },
+  "MyPipelineBuildDockerBuildImagesCodePipelineActionRoleDefaultPolicy04226057": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "codebuild:BatchGetBuilds",
+        "codebuild:StartBuild",
+        "codebuild:StopBuild"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "DockerBuildCFACF599",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "MyPipelineBuildDockerBuildImagesCodePipelineActionRoleDefaultPolicy04226057",
+    "Roles": [
+     {
+      "Ref": "MyPipelineBuildDockerBuildImagesCodePipelineActionRoleE3845FE2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/MyPipeline/Build/DockerBuildImages/CodePipelineActionRole/DefaultPolicy/Resource"
+   }
+  },
+  "DockerLintRoleBA4A0360": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/DockerLint/Role/Resource"
+   }
+  },
+  "DockerLintRoleDefaultPolicyBEB3C41D": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:us-east-1:781873529845:log-group:/aws/codebuild/",
+           {
+            "Ref": "DockerLintAE1899AD"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:us-east-1:781873529845:log-group:/aws/codebuild/",
+           {
+            "Ref": "DockerLintAE1899AD"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:us-east-1:781873529845:report-group/",
+          {
+           "Ref": "DockerLintAE1899AD"
+          },
+          "-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "MyPipelineArtifactsBucket727923DD",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "MyPipelineArtifactsBucket727923DD",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DockerLintRoleDefaultPolicyBEB3C41D",
+    "Roles": [
+     {
+      "Ref": "DockerLintRoleBA4A0360"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/DockerLint/Role/DefaultPolicy/Resource"
+   }
+  },
+  "DockerLintAE1899AD": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "CODEPIPELINE"
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "EnvironmentVariables": [
+      {
+       "Name": "ecr",
+       "Type": "PLAINTEXT",
+       "Value": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "fargatedevworkshopDC8556A7",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          ".dkr.ecr.",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "fargatedevworkshopDC8556A7",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Ref": "fargatedevworkshopDC8556A7"
+          }
+         ]
+        ]
+       }
+      },
+      {
+       "Name": "project_name",
+       "Type": "PLAINTEXT",
+       "Value": "fargate-dev-workshop"
+      }
+     ],
+     "Image": "aws/codebuild/nodejs:10.1.0",
+     "ImagePullCredentialsType": "CODEBUILD",
+     "PrivilegedMode": true,
+     "Type": "LINUX_CONTAINER"
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "DockerLintRoleBA4A0360",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": "configs/buildspec_lint.yml",
+     "Type": "CODEPIPELINE"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "linting the container dockerfile for best practices",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+      "Arn"
+     ]
+    },
+    "Name": "fargate-dev-workshop-docker-lint",
+    "TimeoutInMinutes": 60
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/DockerLint/Resource"
+   }
+  },
+  "DockerSecretScanRole4D0115A2": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/DockerSecretScan/Role/Resource"
+   }
+  },
+  "DockerSecretScanRoleDefaultPolicy2212C561": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:us-east-1:781873529845:log-group:/aws/codebuild/",
+           {
+            "Ref": "DockerSecretScan0936513F"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:us-east-1:781873529845:log-group:/aws/codebuild/",
+           {
+            "Ref": "DockerSecretScan0936513F"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:us-east-1:781873529845:report-group/",
+          {
+           "Ref": "DockerSecretScan0936513F"
+          },
+          "-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": "codecommit:*",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "MyPipelineArtifactsBucket727923DD",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "MyPipelineArtifactsBucket727923DD",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DockerSecretScanRoleDefaultPolicy2212C561",
+    "Roles": [
+     {
+      "Ref": "DockerSecretScanRole4D0115A2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/DockerSecretScan/Role/DefaultPolicy/Resource"
+   }
+  },
+  "DockerSecretScan0936513F": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "CODEPIPELINE"
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "EnvironmentVariables": [
+      {
+       "Name": "commituri",
+       "Type": "PLAINTEXT",
+       "Value": {
+        "Fn::GetAtt": [
+         "fargatedevworkshopapprepo09C62F80",
+         "CloneUrlHttp"
+        ]
+       }
+      },
+      {
+       "Name": "ecr",
+       "Type": "PLAINTEXT",
+       "Value": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "fargatedevworkshopDC8556A7",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          ".dkr.ecr.",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "fargatedevworkshopDC8556A7",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Ref": "fargatedevworkshopDC8556A7"
+          }
+         ]
+        ]
+       }
+      },
+      {
+       "Name": "project_name",
+       "Type": "PLAINTEXT",
+       "Value": "fargate-dev-workshop"
+      }
+     ],
+     "Image": "aws/codebuild/standard:1.0",
+     "ImagePullCredentialsType": "CODEBUILD",
+     "PrivilegedMode": true,
+     "Type": "LINUX_CONTAINER"
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "DockerSecretScanRole4D0115A2",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": "configs/buildspec_secrets.yml",
+     "Type": "CODEPIPELINE"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "Scanning container for secrets",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+      "Arn"
+     ]
+    },
+    "Name": "fargate-dev-workshop-docker-secretscan",
+    "TimeoutInMinutes": 60
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/DockerSecretScan/Resource"
+   }
+  },
+  "DockerBuildRole2BAC6ED2": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/DockerBuild/Role/Resource"
+   }
+  },
+  "DockerBuildRoleDefaultPolicy0D649F98": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:us-east-1:781873529845:log-group:/aws/codebuild/",
+           {
+            "Ref": "DockerBuildCFACF599"
+           }
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:",
+           {
+            "Ref": "AWS::Partition"
+           },
+           ":logs:us-east-1:781873529845:log-group:/aws/codebuild/",
+           {
+            "Ref": "DockerBuildCFACF599"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:",
+          {
+           "Ref": "AWS::Partition"
+          },
+          ":codebuild:us-east-1:781873529845:report-group/",
+          {
+           "Ref": "DockerBuildCFACF599"
+          },
+          "-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "MyPipelineArtifactsBucket727923DD",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "MyPipelineArtifactsBucket727923DD",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "fargatedevworkshopDC8556A7",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "ecr:PutImage",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "fargatedevworkshopDC8556A7",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DockerBuildRoleDefaultPolicy0D649F98",
+    "Roles": [
+     {
+      "Ref": "DockerBuildRole2BAC6ED2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/DockerBuild/Role/DefaultPolicy/Resource"
+   }
+  },
+  "DockerBuildCFACF599": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "CODEPIPELINE"
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "EnvironmentVariables": [
+      {
+       "Name": "ecr",
+       "Type": "PLAINTEXT",
+       "Value": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::Select": [
+            4,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "fargatedevworkshopDC8556A7",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          ".dkr.ecr.",
+          {
+           "Fn::Select": [
+            3,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "fargatedevworkshopDC8556A7",
+                "Arn"
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          ".",
+          {
+           "Ref": "AWS::URLSuffix"
+          },
+          "/",
+          {
+           "Ref": "fargatedevworkshopDC8556A7"
+          }
+         ]
+        ]
+       }
+      },
+      {
+       "Name": "tag",
+       "Type": "PLAINTEXT",
+       "Value": "release"
+      },
+      {
+       "Name": "project_name",
+       "Type": "PLAINTEXT",
+       "Value": "fargate-dev-workshop"
+      }
+     ],
+     "Image": "aws/codebuild/standard:1.0",
+     "ImagePullCredentialsType": "CODEBUILD",
+     "PrivilegedMode": true,
+     "Type": "LINUX_CONTAINER"
+    },
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "DockerBuildRole2BAC6ED2",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": "configs/docker_build_base.yml",
+     "Type": "CODEPIPELINE"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "Description": "Deploy to ECR",
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "MyPipelineArtifactsBucketEncryptionKey8BF0A7F3",
+      "Arn"
+     ]
+    },
+    "Name": "fargate-dev-workshop-docker-build",
+    "TimeoutInMinutes": 60
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/DockerBuild/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/32QzY6DMAyEn6X3NC3i0Gt/jr0g9glY42pdkhjlZ1cI5d2bEBC3Pc2M89kapZLVpZbnw7X7c0foh9MMbFHOX76DQTzYOG8DePF4mRYdBwsYRWYT1yOw1uTl3OLIjjzbqYBbigJ/0XiXiKBweUuapmD/W8qnRxpRkUlVmtVlavNRDDpdfeKym+WmqHM5LCYKV8v5HmDApfvqijSsCKZ9XHIU1OnUiteiWXdyY3K170Cq33s1lt9Yvmi1MUbRTP6HzamWF1mdD29HdLTBeNIo26IfiW0SdXsBAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "pipeline-to-ecr/CDKMetadata/Default"
+   }
+  }
+ }
+}
